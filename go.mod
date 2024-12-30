@@ -1,6 +1,6 @@
 module github.com/sksat/ud-co2s-logger
 
-go 1.23.4
+go 1.19.8
 
 require (
 	github.com/creack/goselect v0.1.2 // indirect
