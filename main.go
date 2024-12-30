@@ -28,7 +28,7 @@ func parse(data string) (EnvData, error) {
 	data = strings.TrimSuffix(data, "\r\n")
 	switch data {
 	case "NG":
-		return EnvData{}, errors.ErrUnsupported
+		return EnvData{}, errors.New("NG")
 	case "OK STA":
 		log.Println("OKOKOKOK")
 		return EnvData{}, errors.New("start")
