@@ -32,9 +32,16 @@ func parse(data string) (EnvData, error) {
 	case "OK STA":
 		log.Println("OKOKOKOK")
 		return EnvData{}, errors.New("start")
+	case "OK STP":
+		log.Println("OK stop")
+		return EnvData{}, errors.New("stop")
 	}
 
 	sdata := strings.Split(data, ",")
+
+	if !strings.HasPrefix(sdata[0], "CO2") {
+		return EnvData{}, errors.New("unknown")
+	}
 	//log.Printf("%v", sdata)
 	for _, sd := range sdata {
 		var err error
