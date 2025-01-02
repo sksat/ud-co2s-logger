@@ -5,11 +5,12 @@ After=syslog.target
 [Service]
 EnvironmentFile=/home/sksat/prog/ud-co2s-logger/env.sh
 
+ExecStartPre=/bin/sh -c 'while [ ! -L /dev/UD_CO2S ]; do sleep 1; done'
 ExecStart=/home/sksat/prog/ud-co2s-logger/ud-co2s-logger
 ExecStop=/bin/kill -s QUIT $MAINPID
 
 Restart=on-failure
-RestartSec=1
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
