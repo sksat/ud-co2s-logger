@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"database/sql"
 	"errors"
-	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -146,27 +145,60 @@ func run(db *sql.DB, device_id string) error {
 }
 
 func main() {
+	var err error
+
 	fmt.Println("Hello, Go!")
 
-	psql_host := flag.String("postgres", "default", "hoge")
-	psql_port := flag.Int("postgres-port", 5432, "postgresql port")
-	psql_user := flag.String("postgres-user", "default", "postgresql user")
-	psql_password := flag.String("postgres-password", "default", "postgresql password")
-	psql_db := flag.String("postgres-db", "", "postgresql DB")
-	serial_id := flag.String("sensor-serial", "demo", "serial ID")
-	flag.Parse()
+	// PostgreSQL host
+	psql_host := os.Getenv("POSTGRES_HOST")
+	if psql_host == "" {
+		psql_host = "localhost"
+	}
 
-	fmt.Printf("postgres: %s\n", *psql_host)
+	// PostgreSQL port
+	psql_port := 5432
+	psql_port_s := os.Getenv("POSTGRES_PORT")
+	if psql_port_s != "" {
+		log.Println("PostgreSQL port does not specified. fallback to default: 5432")
+		psql_port, err = strconv.Atoi(psql_port_s)
+	}
+
+	// PostgreSQL user
+	psql_user := os.Getenv("POSTGRES_USER")
+	if psql_user == "" {
+		log.Println("PostgreSQL user does not specified. fallback to default: default")
+		psql_user = "default"
+	}
+
+	// PostgreSQL password
+	psql_password := os.Getenv("POSTGRES_PASSWORD")
+	if psql_password == "" {
+		log.Println("PostgreSQL password does not specified. fallback to default")
+	}
+
+	// PostgreSQL DB
+	psql_db := os.Getenv("POSTGRES_DB")
+	if psql_db == "" {
+		log.Println("PostgreSQL DB does not specified. fallback to default")
+	}
+
+	// UD-CO2S serial ID
+	serial_id := os.Getenv("UD_CO2S_SERIAL_ID")
+	if serial_id == "" {
+		log.Println("UD-CO2S serial ID does not specified. fallback to default: demo")
+		serial_id = "demo"
+	}
+
+	fmt.Printf("postgres: %s\n", psql_host)
 
 	hostname, err := os.Hostname()
 	if err != nil {
 		log.Fatal(err)
 	}
-	device_id := fmt.Sprintf("%s:%s", hostname, *serial_id)
+	device_id := fmt.Sprintf("%s:%s", hostname, serial_id)
 	log.Println(device_id)
 
-
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", *psql_host, *psql_port, *psql_user, *psql_password, *psql_db)
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", psql_host, psql_port, psql_user, psql_password, psql_db)
 	log.Printf("opening postgres: %s\n", psqlInfo)
 
 	db, err := sql.Open("postgres", psqlInfo)
